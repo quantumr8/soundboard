@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: white;
+  padding: 0 20px;
+}
+
+#app {
+  text-align: center;
+  padding: 20px;
+  position: relative;
+}
+
+button {
+  background-color: #1e1e1e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+button:focus {
+  outline: none;
+}
+
+#soundboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#file-input {
+  margin-bottom: 20px;
+}
+
+#external-link {
+  color: white;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}

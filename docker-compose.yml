@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    container_name: soundboard
+    ports:
+      - "4000:3000"
+    volumes:
+      - ./uploads:/usr/src/app/uploads
