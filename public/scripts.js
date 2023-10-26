@@ -1,84 +1,84 @@
 document.addEventListener('DOMContentLoaded', () => {
   const soundboard = document.getElementById('soundboard');
   const fileInput = document.getElementById('file-input');
-  const linksContainer = document.getElementById('links-container');
-  const editLinksButton = document.getElementById('edit-links');
-  
-  let audioElements = {};
-  let editMode = false;
 
-  const loadSounds = async () => {
-    const response = await fetch('/sounds');
-    const sounds = await response.json();
+  fileInput.addEventListener('change', handleFileUpload);
+
+  async function loadSounds() {
+    try {
+      const response = await fetch('/sounds');
+      const sounds = await response.json();
+      renderButtons(sounds);
+    } catch (error) {
+      console.error('Failed to load sounds', error);
+    }
+  }
+
+  function renderButtons(sounds) {
     soundboard.innerHTML = '';
-    audioElements = {};
     sounds.forEach(sound => {
       const button = document.createElement('button');
-      button.innerText = sound.name;
-      button.addEventListener('click', () => playSound(sound.name));
+      button.textContent = sound.name;
+      button.addEventListener('click', () => playSound(sound.file, button));
       soundboard.appendChild(button);
-      audioElements[sound.name] = new Audio(`/sounds/${sound.file}`);
     });
-  };
+  }
 
-  const playSound = (name) => {
-    const audio = audioElements[name];
-    if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-  };
+  function playSound(file, button) {
+    const audio = new Audio(`/sounds/${file}`);
+    audio.play();
+    button.classList.add('playing');
+    audio.addEventListener('ended', () => {
+      button.classList.remove('playing');
+    });
+    audio.addEventListener('pause', () => {
+      button.classList.remove('playing');
+    });
+}
 
-  fileInput.addEventListener('change', async (event) => {
-    const files = event.target.files;
-    if (files.length === 0) return;
 
+  async function handleFileUpload(event) {
+    const files = Array.from(event.target.files);
     const formData = new FormData();
-    for (const file of files) {
-      formData.append('sounds', file);
+    files.forEach(file => formData.append('sounds', file));
+    try {
+      await fetch('/upload', { method: 'POST', body: formData });
+      loadSounds();
+    } catch (error) {
+      console.error('Failed to upload files', error);
     }
-
-    await fetch('/upload', {
-      method: 'POST',
-      body: formData,
-    });
-
-    loadSounds();
-  });
+  }
 
   loadSounds();
-
-  // External links and edit functionality
-  const loadLinks = async () => {
-    const response = await fetch('/links');
-    const links = await response.json();
-    linksContainer.innerHTML = '';
-    links.forEach(link => {
-      const a = document.createElement('a');
-      a.href = link.url;
-      a.target = '_blank';
-      a.innerText = link.name;
-      if (editMode) {
-        const removeButton = document.createElement('button');
-        removeButton.innerText = 'Remove';
-        removeButton.addEventListener('click', () => removeLink(link.name));
-        a.appendChild(removeButton);
-      }
-      linksContainer.appendChild(a);
-    });
-  };
-
-  const removeLink = async (name) => {
-    await fetch(`/links/${name}`, { method: 'DELETE' });
-    loadLinks();
-  };
-
-  editLinksButton.addEventListener('click', () => {
-    editMode = !editMode;
-    loadLinks();
-  });
-
-  loadLinks();
 });
+
+function openPopup() {
+  document.getElementById('upload-popup').style.display = 'block';
+}
+
+function closePopup() {
+  document.getElementById('upload-popup').style.display = 'none';
+}
+
+async function upload() {
+  const fileInput = document.getElementById('file-input');
+  const urlInput = document.getElementById('url-input');
+  
+  if (fileInput.files.length > 0) {
+    const formData = new FormData();
+    Array.from(fileInput.files).forEach(file => formData.append('sounds', file));
+    await fetch('/upload', { method: 'POST', body: formData });
+  } else if (urlInput.value) {
+    await fetch('/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: urlInput.value }),
+    });
+  } else {
+    alert('Please select a file or enter a URL');
+    return;
+  }
+  
+  closePopup();
+  loadSounds();
+}

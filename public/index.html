@@ -9,7 +9,14 @@
 </head>
 <body>
   <div id="app">
-    <input type="file" id="file-input" accept="audio/*" multiple>
+    <div id="upload-popup" class="popup">
+      <h2>Upload Sound</h2>
+      <input type="file" id="file-input" accept="audio/*">
+      <input type="text" id="url-input" placeholder="Or enter URL">
+      <button onclick="upload()">Upload</button>
+      <button onclick="closePopup()">Cancel</button>
+    </div>
+    <button id="upload-btn" onclick="openPopup()">+</button>
     <div id="soundboard"></div>
     <a href="https://welcome.zowo.tv" target="_blank" id="external-link">Nothing to see here...</a>
   </div>

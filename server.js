@@ -3,6 +3,11 @@ const multer = require('multer');
 const fs = require('fs').promises;
 const path = require('path');
 const cors = require('cors');
+const axios = require('axios');
+const stream = require('stream');
+const { promisify } = require('util');
+
+const pipeline = promisify(stream.pipeline);
 
 const app = express();
 app.use(cors());
@@ -28,7 +33,18 @@ app.get('/sounds', async (req, res) => {
   }
 });
 
-app.post('/upload', upload.array('sounds'), (req, res) => {
+app.post('/upload', upload.array('sounds'), async (req, res) => {
+  if (req.body.url) {
+    try {
+      const response = await axios.get(req.body.url, { responseType: 'stream' });
+      const fileName = req.body.url.split('/').pop();
+      const filePath = path.join(__dirname, 'uploads', fileName);
+      await pipeline(response.data, fs.createWriteStream(filePath));
+    } catch (error) {
+      console.error('Error downloading file from URL', error);
+      return res.status(500).send('Error downloading file from URL');
+    }
+  }
   res.status(204).send();
 });
 
