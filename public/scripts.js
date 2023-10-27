@@ -1,3 +1,5 @@
+let favorites = [];
+
 document.addEventListener('DOMContentLoaded', () => {
   const soundboard = document.getElementById('soundboard');
   const uploadBtn = document.getElementById('upload-btn');
@@ -24,10 +26,52 @@ document.addEventListener('DOMContentLoaded', () => {
     sounds.forEach(sound => {
       const button = document.createElement('button');
       button.textContent = sound.name;
+      const favBtn = document.createElement('button');
+      favBtn.innerHTML = '♥';
+      favBtn.classList.add('fav-btn');
+      if (favorites.includes(sound.file)) {
+        favBtn.classList.add('toggled');
+      }
+      favBtn.onclick = () => toggleFavorite(sound.file, button);
+      button.appendChild(favBtn);
       button.addEventListener('click', () => playSound(sound.file, button));
       soundboard.appendChild(button);
     });
   }
+
+  function renderFavorites() {
+    const favoritesContainer = document.getElementById('favorites');
+    const list = document.createElement('ul');
+
+    if (favorites.length === 0) {
+      const emptyHint = document.createElement('div');
+      emptyHint.textContent = 'no favorites yet';
+      emptyHint.classList.add('empty');
+      favoritesContainer.appendChild(emptyHint);
+    } else {
+      favorites.forEach(favorite => {
+        const listItem = document.createElement('li');
+        listItem.textContent = favorite;
+        listItem.addEventListener('click', () => playSound(favorite, listItem));
+        list.appendChild(listItem);
+      });
+      favoritesContainer.appendChild(list);
+    }
+  }
+
+  function toggleFavorite(file, button) {
+    const index = favorites.indexOf(file);
+    if (index === -1) {
+      favorites.push(file);
+    } else {
+      favorites.splice(index, 1);
+    }
+    renderFavorites();
+    button.querySelector('.fav-btn').classList.toggle('toggled');
+  }
+
+  renderFavorites();
+});
 
   function playSound(file, button) {
     const audio = new Audio(`/sounds/${file}`);

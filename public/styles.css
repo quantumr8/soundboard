@@ -105,3 +105,57 @@ button.playing {
   cursor: pointer;
   z-index: 1; /* Ensures the button is above other content */
 }
+
+#soundboard button {
+  width: 100px;  /* Set a fixed width */
+  height: 100px; /* Set a fixed height to make buttons square */
+  margin: 5px;
+  position: relative; /* Added to properly position the heart button */
+}
+
+.fav-btn {
+  font-size: 24px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.fav-btn.toggled {
+  color: red;
+}
+
+#favorites {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 150px;
+  background-color: #2a2a2a;
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+}
+
+#favorites h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+#favorites ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#favorites li {
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+#favorites .empty {
+  color: grey;
+  font-style: italic;
+}
