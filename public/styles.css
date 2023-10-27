@@ -10,6 +10,7 @@ body {
   text-align: center;
   padding: 20px;
   position: relative;
+  margin-left: 18%; /* Added to make room for the favorites list */
 }
 
 button {
@@ -32,6 +33,40 @@ button:focus {
 
 button.playing {
   background-color: #2e2e2e;
+}
+
+.progress-container {
+  width: 100%;
+  background-color: #e0e0e0;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 30px;
+  width: 0%;
+  background-color: #76c7c0;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+  transition: width 0.1s ease-in-out;
+}
+
+.upload-message {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: none;
+}
+
+.upload-message.success {
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.upload-message.error {
+  border-color: #F44336;
+  color: #F44336;
 }
 
 #soundboard {
@@ -137,6 +172,8 @@ button.playing {
   padding: 10px;
   border-radius: 5px;
   color: white;
+  height: calc(100% - 40px);
+  overflow-y: auto; /* Enable scrolling if the favorites list is too long */
 }
 
 #favorites h2 {

@@ -1,4 +1,3 @@
-let favorites = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   const soundboard = document.getElementById('soundboard');
@@ -6,11 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('upload-popup');
   const fileInput = document.getElementById('file-input');
   const urlInput = document.getElementById('url-input');
+  let favorites = [];
 
-  uploadBtn.addEventListener('click', openPopup);
-  fileInput.addEventListener('change', upload);
-  urlInput.addEventListener('input', () => fileInput.value = ''); // Clear file input if URL is entered
-
+  
   async function loadSounds() {
     try {
       const response = await fetch('/sounds');
@@ -32,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (favorites.includes(sound.file)) {
         favBtn.classList.add('toggled');
       }
-      favBtn.onclick = () => toggleFavorite(sound.file, button);
+      favBtn.onclick = () => toggleFavorite(sound.file, button, event);
       button.appendChild(favBtn);
       button.addEventListener('click', () => playSound(sound.file, button));
       soundboard.appendChild(button);
@@ -41,11 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderFavorites() {
     const favoritesContainer = document.getElementById('favorites');
+    favoritesContainer.innerHTML = '';  // Clear the Favorites container
     const list = document.createElement('ul');
 
     if (favorites.length === 0) {
       const emptyHint = document.createElement('div');
-      emptyHint.textContent = 'no favorites yet';
+      emptyHint.textContent = 'No favorites';
       emptyHint.classList.add('empty');
       favoritesContainer.appendChild(emptyHint);
     } else {
@@ -59,7 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function toggleFavorite(file, button) {
+  function toggleFavorite(file, button, event) {
+    event.stopPropagation();
     const index = favorites.indexOf(file);
     if (index === -1) {
       favorites.push(file);
@@ -69,9 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFavorites();
     button.querySelector('.fav-btn').classList.toggle('toggled');
   }
-
-  renderFavorites();
-});
 
   function playSound(file, button) {
     const audio = new Audio(`/sounds/${file}`);
@@ -92,13 +88,41 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const progressBar = document.getElementById('progress-bar');
+    const uploadMessage = document.getElementById('upload-message');
+    progressBar.style.width = '0%';
+    uploadMessage.style.display = 'none';
+  
     try {
-      await fetch('/upload', { method: 'POST', body: formData });
-      closePopup();
-      loadSounds();
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData,
+        // For a real progress update, you would need to use XHR instead of fetch
+        // as fetch does not yet support progress updates: https://github.com/whatwg/fetch/issues/607
+      });
+  
+      if (response.ok) {
+        progressBar.style.width = '100%';
+        uploadMessage.textContent = 'File uploaded successfully!';
+        uploadMessage.classList.add('success');
+        uploadMessage.classList.remove('error');
+      } else {
+        progressBar.style.width = '100%';
+        uploadMessage.textContent = 'Failed to upload file';
+        uploadMessage.classList.add('error');
+        uploadMessage.classList.remove('success');
+      }
     } catch (error) {
       console.error('Failed to upload file', error);
+      progressBar.style.width = '100%';
+      uploadMessage.textContent = 'Failed to upload file';
+      uploadMessage.classList.add('error');
+      uploadMessage.classList.remove('success');
     }
+  
+    uploadMessage.style.display = 'block';
+    closePopup();
+    loadSounds();
   }
 
   function openPopup() {
@@ -111,5 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     urlInput.value = ''; // Reset URL input
   }
 
+  uploadBtn.addEventListener('click', openPopup);
+  fileInput.addEventListener('change', upload);
+  urlInput.addEventListener('input', () => fileInput.value = ''); // Clear file input if URL is entered
+
+  renderFavorites();
   loadSounds();
 });
+

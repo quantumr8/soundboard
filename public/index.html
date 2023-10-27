@@ -13,6 +13,10 @@
       <h2>Upload Sound</h2>
       <input type="file" id="file-input" accept="audio/*">
       <input type="text" id="url-input" placeholder="Or enter URL">
+      <div class="progress-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <div id="upload-message" class="upload-message"></div>
       <button onclick="upload()">Upload</button>
       <button onclick="closePopup()">Cancel</button>
     </div>
