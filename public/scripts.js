@@ -4,8 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadBtn = document.getElementById('upload-btn');
   const popup = document.getElementById('upload-popup');
   const fileInput = document.getElementById('file-input');
-  const urlInput = document.getElementById('url-input');
-  let favorites = [];
+  const fileNameSpan = document.getElementById('file-name');
+  const fileSizeSpan = document.getElementById('file-size');
+  const renameInput = document.getElementById('rename-input');
+  const confirmUploadBtn = document.getElementById('confirm-upload-btn'); // Make sure to add this button in your HTML
+  const uploadMessage = document.getElementById('upload-message'); // Make sure to add a span or div with this id in your HTML to display upload messages
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsPopup = document.getElementById('settings-popup');
+  const themeToggle = document.getElementById('theme-toggle');
+  const body = document.body;
+  let selectedFile = null;
 
   
   async function loadSounds() {
@@ -22,51 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     soundboard.innerHTML = '';
     sounds.forEach(sound => {
       const button = document.createElement('button');
-      button.textContent = sound.name;
-      const favBtn = document.createElement('button');
-      favBtn.innerHTML = '♥';
-      favBtn.classList.add('fav-btn');
-      if (favorites.includes(sound.file)) {
-        favBtn.classList.add('toggled');
-      }
-      favBtn.onclick = () => toggleFavorite(sound.file, button, event);
-      button.appendChild(favBtn);
+      const textSpan = document.createElement('span');
+      textSpan.textContent = sound.name;
+      button.appendChild(textSpan);
       button.addEventListener('click', () => playSound(sound.file, button));
       soundboard.appendChild(button);
     });
-  }
-
-  function renderFavorites() {
-    const favoritesContainer = document.getElementById('favorites');
-    favoritesContainer.innerHTML = '';  // Clear the Favorites container
-    const list = document.createElement('ul');
-
-    if (favorites.length === 0) {
-      const emptyHint = document.createElement('div');
-      emptyHint.textContent = 'No favorites';
-      emptyHint.classList.add('empty');
-      favoritesContainer.appendChild(emptyHint);
-    } else {
-      favorites.forEach(favorite => {
-        const listItem = document.createElement('li');
-        listItem.textContent = favorite;
-        listItem.addEventListener('click', () => playSound(favorite, listItem));
-        list.appendChild(listItem);
-      });
-      favoritesContainer.appendChild(list);
-    }
-  }
-
-  function toggleFavorite(file, button, event) {
-    event.stopPropagation();
-    const index = favorites.indexOf(file);
-    if (index === -1) {
-      favorites.push(file);
-    } else {
-      favorites.splice(index, 1);
-    }
-    renderFavorites();
-    button.querySelector('.fav-btn').classList.toggle('toggled');
   }
 
   function playSound(file, button) {
@@ -77,21 +46,27 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.addEventListener('pause', () => button.classList.remove('playing'));
   }
 
-  async function upload() {
-    const formData = new FormData();
-    if (fileInput.files.length > 0) {
-      Array.from(fileInput.files).forEach(file => formData.append('sounds', file));
-    } else if (urlInput.value) {
-      formData.append('url', urlInput.value);
+  settingsBtn.addEventListener('click', () => {
+    settingsPopup.style.display = settingsPopup.style.display === 'none' ? 'block' : 'none';
+  });
+
+  themeToggle.addEventListener('change', () => {
+    if (themeToggle.checked) {
+      body.classList.add('halloween-theme');
     } else {
-      alert('Please select a file or enter a URL');
+      body.classList.remove('halloween-theme');
+    }
+  });
+  
+  async function upload() {
+    if (!selectedFile) {
+      alert('Please select a file first');
       return;
     }
 
-    const progressBar = document.getElementById('progress-bar');
-    const uploadMessage = document.getElementById('upload-message');
-    progressBar.style.width = '0%';
-    uploadMessage.style.display = 'none';
+    const formData = new FormData();
+    const fileName = renameInput.value.trim() || selectedFile.name;
+    formData.append('sounds', selectedFile, fileName);
   
     try {
       const response = await fetch('/upload', {
@@ -102,19 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   
       if (response.ok) {
-        progressBar.style.width = '100%';
         uploadMessage.textContent = 'File uploaded successfully!';
         uploadMessage.classList.add('success');
         uploadMessage.classList.remove('error');
       } else {
-        progressBar.style.width = '100%';
         uploadMessage.textContent = 'Failed to upload file';
         uploadMessage.classList.add('error');
         uploadMessage.classList.remove('success');
       }
     } catch (error) {
       console.error('Failed to upload file', error);
-      progressBar.style.width = '100%';
       uploadMessage.textContent = 'Failed to upload file';
       uploadMessage.classList.add('error');
       uploadMessage.classList.remove('success');
@@ -125,6 +97,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSounds();
   }
 
+  function handleFileSelect(event) {
+    const files = event.target.files;
+    if (files.length > 0) {
+      selectedFile = files[0];
+      fileNameSpan.textContent = `File Name: ${selectedFile.name}`;
+      fileSizeSpan.textContent = `File Size: ${formatBytes(selectedFile.size)}`;
+      renameInput.value = '';
+    }
+  }
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
   function openPopup() {
     popup.style.display = 'block';
   }
@@ -132,14 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function closePopup() {
     popup.style.display = 'none';
     fileInput.value = ''; // Reset file input
-    urlInput.value = ''; // Reset URL input
   }
 
+  fileInput.addEventListener('change', handleFileSelect);
+  confirmUploadBtn.addEventListener('click', upload);
   uploadBtn.addEventListener('click', openPopup);
-  fileInput.addEventListener('change', upload);
-  urlInput.addEventListener('input', () => fileInput.value = ''); // Clear file input if URL is entered
-
-  renderFavorites();
+  
   loadSounds();
 });
-

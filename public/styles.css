@@ -10,17 +10,38 @@ body {
   text-align: center;
   padding: 20px;
   position: relative;
-  margin-left: 18%; /* Added to make room for the favorites list */
+  margin-left: 20%; /* Added to make room for the favorites list */
 }
 
 button {
-  background-color: #1e1e1e;
-  color: white;
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  border: 2px solid #444;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+  overflow: hidden;
+}
+
+button:hover {
+  background-color: #444;
+}
+
+button .fav-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
   border: none;
-  padding: 10px 20px;
-  margin: 10px;
+  color: red;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: transform 0.1s ease-in-out;
+}
+
+button .fav-btn:hover {
+  color: #ff6666;
 }
 
 button:active {
@@ -33,22 +54,6 @@ button:focus {
 
 button.playing {
   background-color: #2e2e2e;
-}
-
-.progress-container {
-  width: 100%;
-  background-color: #e0e0e0;
-  margin-top: 10px;
-}
-
-.progress-bar {
-  height: 30px;
-  width: 0%;
-  background-color: #76c7c0;
-  text-align: center;
-  line-height: 30px;
-  color: white;
-  transition: width 0.1s ease-in-out;
 }
 
 .upload-message {
@@ -71,8 +76,8 @@ button.playing {
 
 #soundboard {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0;
   margin-top: 20px;
 }
 
@@ -88,15 +93,16 @@ button.playing {
 }
 
 #upload-btn {
-  font-size: 24px;
   position: fixed;
   top: 10px;
   right: 10px;
-  background-color: #1e1e1e;
+  background-color: #4CAF50;
   color: white;
-  border: none;
   padding: 10px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 24px;
 }
 
 .popup {
@@ -166,33 +172,123 @@ button.playing {
 #favorites {
   position: fixed;
   top: 20px;
-  left: 20px;
-  width: 150px;
+  left: 0;
+  width: 170px;
   background-color: #2a2a2a;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 0;
   color: white;
   height: calc(100% - 40px);
   overflow-y: auto; /* Enable scrolling if the favorites list is too long */
 }
 
-#favorites h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
+#settings-container {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#favorites ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#favorites li {
-  margin-bottom: 5px;
+#settings-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
   cursor: pointer;
 }
 
-#favorites .empty {
-  color: grey;
-  font-style: italic;
+.popup {
+  display: none;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  margin-top: 10px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.halloween-theme {
+  /* Add your Halloween theme styles here */
+  background-color: black;
+  color: orange;
+}
+
+.halloween-theme button {
+  background-color: #444;
+  color: orange;
+}
+
+#file-info {
+  margin-top: 10px;
+}
+
+#file-name, #file-size {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#rename-input {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
 }
