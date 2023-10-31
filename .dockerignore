@@ -1,0 +1,7 @@
+# Ignore everything by default
+**
+
+# Allow files and directories nessessary for the build
+!backend/**
+!frontend/**
+!Dockerfile
