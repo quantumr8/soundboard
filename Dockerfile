@@ -1,23 +1,14 @@
-# Use an official Node.js runtime as a parent image
-FROM node:14
+FROM golang:1.16-alpine
 
-# Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Install dependencies
-RUN npm install
-
-# Bundle app source
 COPY . .
 
-# Create uploads directory
-RUN mkdir -p uploads
+RUN go build -o soundboard
 
-# Expose port
-EXPOSE 3000
+EXPOSE 8080
 
-# Command to run the app
-CMD ["node", "server.js"]
+CMD [ "./soundboard" ]

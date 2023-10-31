@@ -2,9 +2,11 @@ version: '3'
 
 services:
   web:
-    build: .
+    image: quantumr8/soundboard:dev
     container_name: soundboard
     ports:
       - "4000:3000"
     volumes:
       - ./uploads:/usr/src/app/uploads
+    env_file:
+      - database.env
